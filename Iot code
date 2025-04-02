@@ -73,28 +73,29 @@ void loop(){
 3. RaspberryPi 
 import RPi.GPIO as GPIO
 import time
-
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BOARD)  
 GPIO.setwarnings(False)
+LIGHT_SENSOR = 12  # Photocell sensor
+LED = 16  # LED pin
+GPIO.setup(LED, GPIO.OUT)  # Set LED as output
+def get_light():  
+    GPIO.setup(LIGHT_SENSOR, GPIO.OUT)
+    GPIO.output(LIGHT_SENSOR, GPIO.LOW)
+    time.sleep(0.1)  
 
-def RCtime(RCpin):
-    reading = 0
-    GPIO.setup(RCpin, GPIO.OUT)
-    GPIO.output(RCpin, GPIO.LOW)
-    time.sleep(2)  
+    GPIO.setup(LIGHT_SENSOR, GPIO.IN)
+    
+    count = 0  
+    while GPIO.input(LIGHT_SENSOR) == GPIO.LOW:
+        count += 1  
+    return count  
+while True:
+    light_value = get_light()  
+    print(f"Light: {light_value}")
 
-    GPIO.setup(RCpin, GPIO.IN)
-    while GPIO.input(RCpin) == GPIO.LOW:
-        reading += 1 
-    return reading
+    GPIO.output(LED, GPIO.HIGH if light_value > 500 else GPIO.LOW)
 
-try:
-    while True:
-        print(RCtime(12))  
-        time.sleep(1)  
-except KeyboardInterrupt:
-    GPIO.cleanup()
-    print("Exiting...")
+    time.sleep(1)
 
 4. HeartBeats sensor
 #define USE_ARDUINO_INTERRUPTS true
